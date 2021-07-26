@@ -8732,6 +8732,7 @@ function wrappy (fn, cb) {
 /***/ 6989:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+const core    = __webpack_require__( 2186 );
 const exec    = __webpack_require__( 1514 );
 const toolkit = __webpack_require__( 6338 );
 
@@ -8745,7 +8746,8 @@ const repositoryDetails = ( input_repo ) => {
 	let branch = ( typeof input_repo[ 1 ] !== 'undefined' ) ? input_repo[ 1 ] : false;
 	branch     = ( false === branch || '' === branch ) ? 'default' : branch;
 	input_repo = input_repo[ 0 ].split( '/' );
-
+	let remote = `${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`;
+	core.debug(`Git remote: ${remote}`);
 	return {
 		owner: input_repo[ 0 ],
 		repository: input_repo[ 1 ],
@@ -8939,6 +8941,7 @@ async function run() {
 
 	toolkit.log( '-------------------------------------------------------' );
 	toolkit.log( '⚙️ Basic Config' );
+	toolkit.log( `  * GIT_URL                    : ${GIT_URL}` );
 	toolkit.log( `  * AUTO_CREATE_NEW_BRANCH     : ${AUTO_CREATE_NEW_BRANCH}` );
 	toolkit.log( `  * COMMIT_EACH_FILE           : ${COMMIT_EACH_FILE}` );
 	toolkit.log( `  * PULL_REQUEST               : ${PULL_REQUEST}` );

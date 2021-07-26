@@ -1,3 +1,4 @@
+const core    = require( '@actions/core' );
 const exec    = require( '@actions/exec' );
 const toolkit = require( 'actions-js-toolkit' );
 
@@ -11,11 +12,12 @@ const repositoryDetails = ( input_repo ) => {
 	let branch = ( typeof input_repo[ 1 ] !== 'undefined' ) ? input_repo[ 1 ] : false;
 	branch     = ( false === branch || '' === branch ) ? 'default' : branch;
 	input_repo = input_repo[ 0 ].split( '/' );
-
+	let remote = `${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`;
+	core.debug(`Git remote: ${remote}`);
 	return {
 		owner: input_repo[ 0 ],
 		repository: input_repo[ 1 ],
-		git_url: `https://x-access-token:${GIT_TOKEN}@${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
+		git_url: `https://x-access-token:${GIT_TOKEN}@${remote}`,
 		branch,
 		local_path: `${WORKSPACE}${input_repo[ 0 ]}/${input_repo[ 1 ]}/${branch}/`
 	};
