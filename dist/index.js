@@ -8751,7 +8751,7 @@ const repositoryDetails = ( input_repo ) => {
 	return {
 		owner: input_repo[ 0 ],
 		repository: input_repo[ 1 ],
-		git_url: `https://x-access-token:${GIT_TOKEN}@${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
+		git_url: `https://x-access-token:${GIT_TOKEN}@${remote}`,
 		branch,
 		local_path: `${WORKSPACE}${input_repo[ 0 ]}/${input_repo[ 1 ]}/${branch}/`
 	};
