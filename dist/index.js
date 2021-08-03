@@ -8759,15 +8759,15 @@ const repositoryDetails = ( input_repo ) => {
 
 const repositoryClone = async( git_url, local_path, branch, auto_create_branch ) => {
 	const common_arg = '--quiet --no-hardlinks --no-tags';
-	const options    = { silent: true };
+	const options    = { silent: false };
 	let status       = true;
 	if( 'default' === branch ) {
 		let path = `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`;
 		toolkit.log.success( `Repository cloning | ${path}`, '	');
 		await exec.exec( `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`, [], options )
 				  .then( () => toolkit.log.success( 'Repository Cloned', '	' ) )
-				  .catch( reason => {
-					  toolkit.log.error( `Repository May Not Exist:\n${reason}`, '	' );
+				  .catch( () => {
+					  toolkit.log.error('Unable to clone respository', '	' );
 					  status = false;
 				  } );
 	} else {
@@ -8790,7 +8790,7 @@ const repositoryClone = async( git_url, local_path, branch, auto_create_branch )
 													 } );
 									} )
 									.catch( () => {
-										toolkit.log.error( 'Repository Does Not Exists !', '	' );
+										toolkit.log.error( 'Unable to clone repository!', '	' );
 										status = false;
 									} );
 					  } else {
