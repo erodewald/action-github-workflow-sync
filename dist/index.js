@@ -8737,6 +8737,7 @@ const toolkit = __webpack_require__( 6338 );
 
 const repositoryDetails = ( input_repo ) => {
 	let GIT_TOKEN = __webpack_require__(3424).GITHUB_TOKEN;
+	let GIT_URL   = __webpack_require__(3424).GIT_URL;
 	let WORKSPACE = __webpack_require__(3424).WORKSPACE;
 	input_repo    = input_repo.split( '@' );
 
@@ -8748,7 +8749,7 @@ const repositoryDetails = ( input_repo ) => {
 	return {
 		owner: input_repo[ 0 ],
 		repository: input_repo[ 1 ],
-		git_url: `https://x-access-token:${GIT_TOKEN}@github.com/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
+		git_url: `https://x-access-token:${GIT_TOKEN}@${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
 		branch,
 		local_path: `${WORKSPACE}${input_repo[ 0 ]}/${input_repo[ 1 ]}/${branch}/`
 	};
@@ -8757,13 +8758,15 @@ const repositoryDetails = ( input_repo ) => {
 const repositoryClone = async( git_url, local_path, branch, auto_create_branch ) => {
 	const common_arg = '--quiet --no-hardlinks --no-tags';
 	const options    = { silent: true };
-	let stauts       = true;
+	let status       = true;
 	if( 'default' === branch ) {
+		let path = `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`;
+		toolkit.log.success( `Repository cloning | ${path}`, '	');
 		await exec.exec( `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`, [], options )
 				  .then( () => toolkit.log.success( 'Repository Cloned', '	' ) )
-				  .catch( () => {
-					  toolkit.log.error( 'Repository Dose Not Exists !', '	' );
-					  stauts = false;
+				  .catch( reason => {
+					  toolkit.log.error( `Repository May Not Exist:\n${reason}`, '	' );
+					  status = false;
 				  } );
 	} else {
 		await exec.exec( `git clone ${common_arg} --depth 1 --branch "${branch}" ${git_url} "${local_path}"`, [], options )
@@ -8777,24 +8780,24 @@ const repositoryClone = async( git_url, local_path, branch, auto_create_branch )
 													 .then( () => {
 														 toolkit.log.success( 'Repository Cloned', '	' );
 														 toolkit.log.success( 'Branch Created', '	' );
-														 stauts = 'created';
+														 status = 'created';
 													 } )
 													 .catch( () => {
 														 toolkit.log.error( 'Unable To Create Branch.', '	' );
-														 stauts = false;
+														 status = false;
 													 } );
 									} )
 									.catch( () => {
-										toolkit.log.error( 'Repository Dose Not Exists !', '	' );
-										stauts = false;
+										toolkit.log.error( 'Repository Does Not Exists !', '	' );
+										status = false;
 									} );
 					  } else {
 						  toolkit.log.error( `Repository Branch ${branch} Not Found!`, '	' );
-						  stauts = false;
+						  status = false;
 					  }
 				  } );
 	}
-	return stauts;
+	return status;
 };
 
 const extract_workflow_file_info = ( file ) => {
@@ -8907,6 +8910,7 @@ module.exports = {
 	extract_workflow_file_info: extract_workflow_file_info,
 };
 
+
 /***/ }),
 
 /***/ 4351:
@@ -8924,6 +8928,7 @@ async function run() {
 	let COMMIT_EACH_FILE       = __webpack_require__(3424).COMMIT_EACH_FILE;
 	let DRY_RUN                = __webpack_require__(3424).DRY_RUN;
 	let GITHUB_TOKEN           = __webpack_require__(3424).GITHUB_TOKEN;
+	let GIT_URL                = __webpack_require__(3424).GIT_URL;
 	let WORKFLOW_FILES_DIR     = __webpack_require__(3424).WORKFLOW_FILES_DIR;
 	let WORKSPACE              = __webpack_require__(3424).WORKSPACE;
 	let REPOSITORIES           = __webpack_require__(3424).REPOSITORIES;
@@ -9086,6 +9091,7 @@ async function run() {
 
 run();
 
+
 /***/ }),
 
 /***/ 3424:
@@ -9100,6 +9106,7 @@ const DRY_RUN                = toolkit.input.tobool( core.getInput( 'DRY_RUN' ) 
 const PULL_REQUEST           = toolkit.input.tobool( core.getInput( 'PULL_REQUEST' ) );
 const SKIP_CI                = toolkit.input.tobool( core.getInput( 'SKIP_CI' ) );
 const GITHUB_TOKEN           = core.getInput( 'GITHUB_TOKEN' );
+const GIT_URL                = core.getInput( 'GIT_URL' );
 const RAW_REPOSITORIES       = core.getInput( 'REPOSITORIES' );
 const COMMIT_MESSAGE         = core.getInput( 'COMMIT_MESSAGE' );
 const RAW_WORKFLOW_FILES     = core.getInput( 'WORKFLOW_FILES' );
@@ -9116,6 +9123,7 @@ module.exports = {
 	COMMIT_EACH_FILE,
 	DRY_RUN,
 	GITHUB_TOKEN,
+	GIT_URL,
 	RAW_REPOSITORIES,
 	PULL_REQUEST,
 	RAW_WORKFLOW_FILES,
@@ -9127,6 +9135,7 @@ module.exports = {
 	SKIP_CI,
 	COMMIT_MESSAGE
 };
+
 
 /***/ }),
 

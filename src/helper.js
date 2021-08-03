@@ -3,6 +3,7 @@ const toolkit = require( 'actions-js-toolkit' );
 
 const repositoryDetails = ( input_repo ) => {
 	let GIT_TOKEN = require( './variables' ).GITHUB_TOKEN;
+	let GIT_URL   = require( './variables' ).GIT_URL;
 	let WORKSPACE = require( './variables' ).WORKSPACE;
 	input_repo    = input_repo.split( '@' );
 
@@ -14,7 +15,7 @@ const repositoryDetails = ( input_repo ) => {
 	return {
 		owner: input_repo[ 0 ],
 		repository: input_repo[ 1 ],
-		git_url: `https://x-access-token:${GIT_TOKEN}@github.com/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
+		git_url: `https://x-access-token:${GIT_TOKEN}@${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
 		branch,
 		local_path: `${WORKSPACE}${input_repo[ 0 ]}/${input_repo[ 1 ]}/${branch}/`
 	};
@@ -23,13 +24,15 @@ const repositoryDetails = ( input_repo ) => {
 const repositoryClone = async( git_url, local_path, branch, auto_create_branch ) => {
 	const common_arg = '--quiet --no-hardlinks --no-tags';
 	const options    = { silent: true };
-	let stauts       = true;
+	let status       = true;
 	if( 'default' === branch ) {
+		let path = `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`;
+		toolkit.log.success( `Repository cloning | ${path}`, '	');
 		await exec.exec( `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`, [], options )
 				  .then( () => toolkit.log.success( 'Repository Cloned', '	' ) )
-				  .catch( () => {
-					  toolkit.log.error( 'Repository Dose Not Exists !', '	' );
-					  stauts = false;
+				  .catch( reason => {
+					  toolkit.log.error( `Repository May Not Exist:\n${reason}`, '	' );
+					  status = false;
 				  } );
 	} else {
 		await exec.exec( `git clone ${common_arg} --depth 1 --branch "${branch}" ${git_url} "${local_path}"`, [], options )
@@ -43,24 +46,24 @@ const repositoryClone = async( git_url, local_path, branch, auto_create_branch )
 													 .then( () => {
 														 toolkit.log.success( 'Repository Cloned', '	' );
 														 toolkit.log.success( 'Branch Created', '	' );
-														 stauts = 'created';
+														 status = 'created';
 													 } )
 													 .catch( () => {
 														 toolkit.log.error( 'Unable To Create Branch.', '	' );
-														 stauts = false;
+														 status = false;
 													 } );
 									} )
 									.catch( () => {
-										toolkit.log.error( 'Repository Dose Not Exists !', '	' );
-										stauts = false;
+										toolkit.log.error( 'Repository Does Not Exists !', '	' );
+										status = false;
 									} );
 					  } else {
 						  toolkit.log.error( `Repository Branch ${branch} Not Found!`, '	' );
-						  stauts = false;
+						  status = false;
 					  }
 				  } );
 	}
-	return stauts;
+	return status;
 };
 
 const extract_workflow_file_info = ( file ) => {
