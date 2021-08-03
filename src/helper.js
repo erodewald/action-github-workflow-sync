@@ -27,6 +27,15 @@ const repositoryClone = async( git_url, local_path, branch, auto_create_branch )
 	const common_arg = '--quiet --no-hardlinks --no-tags';
 	const options    = { silent: false };
 	let status       = true;
+	await exec.exec(`rm -rf ${local_path}`, [], options )
+              .then( () => {
+                  toolkit.log.success(`Removed existing clone path: ${local_path}`, '	' );
+                  status = true;
+              })
+              .catch( () => {
+                  toolkit.log.error(`Unable to remove existing clone path: ${local_path}`, '	' );
+                  status = false;
+              });
 	if( 'default' === branch ) {
 		let path = `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`;
 		toolkit.log.success( `Repository cloning | ${path}`, '	');
