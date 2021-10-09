@@ -17,7 +17,7 @@ const repositoryDetails = ( input_repo ) => {
 	return {
 		owner: input_repo[ 0 ],
 		repository: input_repo[ 1 ],
-		git_url: `https://x-access-token:${GIT_TOKEN}@${remote}`,
+		git_url: `https://x-access-token:${GIT_TOKEN}@${GIT_URL}/${input_repo[ 0 ]}/${input_repo[ 1 ]}.git`,
 		branch,
 		local_path: `${WORKSPACE}${input_repo[ 0 ]}/${input_repo[ 1 ]}/${branch}/`
 	};
@@ -42,7 +42,7 @@ const repositoryClone = async( git_url, local_path, branch, auto_create_branch )
 		await exec.exec( `git clone ${common_arg} --depth 1 ${git_url} "${local_path}"`, [], options )
 				  .then( () => toolkit.log.success( 'Repository Cloned', '	' ) )
 				  .catch( () => {
-					  toolkit.log.error('Unable to clone respository', '	' );
+					  toolkit.log.error( 'Unable to Clone Repository!', '	' );
 					  status = false;
 				  } );
 	} else {
@@ -65,7 +65,7 @@ const repositoryClone = async( git_url, local_path, branch, auto_create_branch )
 													 } );
 									} )
 									.catch( () => {
-										toolkit.log.error( 'Unable to clone repository!', '	' );
+										toolkit.log.error( 'Repository Dose Not Exists !', '	' );
 										status = false;
 									} );
 					  } else {
